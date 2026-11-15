@@ -1,179 +1,201 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial, Helvetica, sans-serif;
+const clientes = [
+
+    {
+        nome: "João Silva",
+        email: "joao@email.com",
+        cpf: "123.456.789-00",
+        telefone: "(45) 99999-8888"
+    }
+
+];
+
+const form = document.getElementById("clienteForm");
+const listaClientes = document.getElementById("listaClientes");
+const mensagem = document.getElementById("mensagem");
+const pesquisa = document.getElementById("pesquisa");
+const contador = document.getElementById("contador");
+
+const cpfInput = document.getElementById("cpf");
+const telefoneInput = document.getElementById("telefone");
+
+function mostrarMensagem(texto, tipo){
+
+    mensagem.innerHTML =
+    `<div class="${tipo}">${texto}</div>`;
+
+    setTimeout(() => {
+        mensagem.innerHTML = "";
+    }, 3000);
 }
 
-body{
-    min-height:100vh;
-    background:linear-gradient(
-        135deg,
-        #61047d,
-        #9903b3
+function atualizarContador(){
+
+    contador.textContent =
+        `${clientes.length} cliente(s)`;
+}
+
+function renderizarClientes(filtro = ""){
+
+    listaClientes.innerHTML = "";
+
+    const clientesFiltrados =
+    clientes.filter(cliente =>
+        cliente.nome
+        .toLowerCase()
+        .includes(filtro.toLowerCase())
     );
-    padding:20px;
+
+    clientesFiltrados.forEach((cliente, indice) => {
+
+        listaClientes.innerHTML += `
+            <div class="cliente">
+
+                <h3>${cliente.nome}</h3>
+
+                <p>📧 ${cliente.email}</p>
+
+                <p>🪪 CPF: ${cliente.cpf}</p>
+
+                <p>📱 ${cliente.telefone}</p>
+
+                <button
+                    class="btnExcluir"
+                    onclick="excluirCliente(${indice})">
+                    Excluir
+                </button>
+
+            </div>
+        `;
+    });
+
+    atualizarContador();
 }
 
-.container{
-    max-width:900px;
-    margin:auto;
-    background:white;
-    padding:30px;
-    border-radius:20px;
+function excluirCliente(indice){
 
-    border:4px solid transparent;
+    if(confirm("Deseja excluir este cliente?")){
 
-    background-image:
-        linear-gradient(white,white),
-        linear-gradient(135deg,#280136,#df4bfd);
+        clientes.splice(indice, 1);
 
-    background-origin:border-box;
-    background-clip:padding-box,border-box;
+        renderizarClientes(
+            pesquisa.value
+        );
 
-    box-shadow:
-        0 10px 25px rgba(0,0,0,.20),
-        0 0 30px rgba(47, 1, 51, 0.346);
-}
-
-header{
-    text-align:center;
-    margin-bottom:25px;
-}
-
-header h1{
-    color:#62028b;
-    margin-bottom:5px;
-}
-
-header p{
-    color:#666;
-}
-
-form{
-    display:grid;
-    gap:15px;
-    margin-bottom:30px;
-}
-
-input{
-    padding:12px;
-    border:1px solid #ddd;
-    border-radius:8px;
-    font-size:16px;
-    transition:.3s;
-}
-
-input:focus{
-    border-color:#5f0163;
-    outline:none;
-    box-shadow:0 0 8px rgba(52, 0, 84, 0.2);
-}
-
-button{
-    background:#500092;
-    color:white;
-    border:none;
-    padding:12px;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:16px;
-    transition:.3s;
-}
-
-button:hover{
-    background:#36004f;
-    transform:translateY(-2px);
-}
-
-.topo-lista{
-    margin-bottom:20px;
-}
-
-.acoes{
-    display:flex;
-    justify-content:space-between;
-    gap:10px;
-    margin-top:10px;
-}
-
-#contador{
-    background:#5a0280;
-    color:white;
-    padding:10px 15px;
-    border-radius:8px;
-}
-
-#listaClientes{
-    display:grid;
-    gap:15px;
-}
-
-.cliente{
-    background:#f8f9fa;
-    padding:15px;
-    border-radius:10px;
-    border-left:5px solid #3f0154;
-    animation:entrada .4s ease;
-}
-
-.cliente h3{
-    color:#42014d;
-    margin-bottom:10px;
-}
-
-.cliente p{
-    margin:6px 0;
-}
-
-.btnExcluir{
-    margin-top:12px;
-    background:#dc3545;
-}
-
-.btnExcluir:hover{
-    background:#bb2d3b;
-}
-
-.sucesso{
-    background:#d4edda;
-    color:#155724;
-    padding:12px;
-    border-radius:8px;
-    margin-bottom:15px;
-}
-
-.erro{
-    background:#f8d7da;
-    color:#721c24;
-    padding:12px;
-    border-radius:8px;
-    margin-bottom:15px;
-}
-
-@keyframes entrada{
-    from{
-        opacity:0;
-        transform:translateY(20px);
-    }
-
-    to{
-        opacity:1;
-        transform:translateY(0);
+        mostrarMensagem(
+            "Cliente removido com sucesso!",
+            "sucesso"
+        );
     }
 }
 
-@media(max-width:600px){
+cpfInput.addEventListener("input", function(){
 
-    .acoes{
-        flex-direction:column;
+    let valor = this.value.replace(/\D/g,"");
+
+    valor = valor.replace(
+        /(\d{3})(\d)/,
+        "$1.$2"
+    );
+
+    valor = valor.replace(
+        /(\d{3})(\d)/,
+        "$1.$2"
+    );
+
+    valor = valor.replace(
+        /(\d{3})(\d{1,2})$/,
+        "$1-$2"
+    );
+
+    this.value = valor;
+});
+
+telefoneInput.addEventListener("input", function(){
+
+    let valor = this.value.replace(/\D/g,"");
+
+    valor = valor.substring(0,11);
+
+    valor = valor.replace(
+        /^(\d{2})(\d)/,
+        "($1) $2"
+    );
+
+    valor = valor.replace(
+        /(\d{5})(\d)/,
+        "$1-$2"
+    );
+
+    this.value = valor;
+});
+
+form.addEventListener("submit", function(e){
+
+    e.preventDefault();
+
+    const nome =
+        document.getElementById("nome")
+        .value.trim();
+
+    const email =
+        document.getElementById("email")
+        .value.trim();
+
+    const cpf =
+        document.getElementById("cpf")
+        .value.trim();
+
+    const telefone =
+        document.getElementById("telefone")
+        .value.trim();
+
+    if(!nome || !email || !cpf || !telefone){
+
+        mostrarMensagem(
+            "Preencha todos os campos.",
+            "erro"
+        );
+
+        return;
     }
 
-    #contador{
-        text-align:center;
+    const cpfLimpo =
+        cpf.replace(/\D/g,"");
+
+    if(cpfLimpo.length !== 11){
+
+        mostrarMensagem(
+            "CPF inválido.",
+            "erro"
+        );
+
+        return;
     }
 
-    .container{
-        padding:20px;
-    }
-}
+    clientes.push({
+        nome,
+        email,
+        cpf,
+        telefone
+    });
+
+    mostrarMensagem(
+        "Cliente cadastrado com sucesso!",
+        "sucesso"
+    );
+
+    form.reset();
+
+    renderizarClientes(
+        pesquisa.value
+    );
+});
+
+pesquisa.addEventListener("input", function(){
+
+    renderizarClientes(
+        this.value
+    );
+});
+
+renderizarClientes();
